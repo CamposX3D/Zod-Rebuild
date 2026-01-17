@@ -17,5 +17,3 @@ public static final class POV{
     public static final int UP_LEFT = 315;
   }
 }
-
-    

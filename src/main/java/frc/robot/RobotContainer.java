@@ -1,7 +1,3 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot;
 
 import java.io.File;
@@ -17,6 +13,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.JoystickButton;
+import frc.robot.commands.VisionShootCommand;
 import frc.robot.commands.ToogleShootCommand;
 import frc.robot.constants.GamepadConstants;
 import frc.robot.constants.ButtonsConstants.Buttons;
@@ -97,6 +94,9 @@ public class RobotContainer {
 
 
     new JoystickButton(p2Controller, Buttons.BUTTON_A).whileTrue(new ToogleShootCommand(shooter));
+    // Teste: regula RPM do shooter com base na distância medida via AprilTag (Limelight)
+    // Wrap VisionShoot behavior in a WPILib2 Command; replace the empty Runnable with the desired action (Correção de erro de sintaxe)
+    new JoystickButton(p2Controller, Buttons.BUTTON_B).whileTrue(Commands.run(() -> {}, shooter));
   }
 
   public Command getAutonomousCommand() {

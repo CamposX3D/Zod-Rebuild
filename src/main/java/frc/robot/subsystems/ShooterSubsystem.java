@@ -12,20 +12,17 @@ import frc.robot.constants.ShooterConstants;
 import frc.robot.utils.LimelightHelpers;
 import frc.robot.utils.ShooterPhysics;
 
+public class ShooterSubsystem extends SubsystemBase {
 
-
-public class ShooterSubsystem extends SubsystemBase{
-
-    private final TalonFX shooter = 
+    private final TalonFX shooter =
         new TalonFX(ShooterConstants.SHOOTER_ID);
 
-    private final VelocityVoltage velocityRequest = 
+    private final VelocityVoltage velocityRequest =
         new VelocityVoltage(0);
 
     private double targetRPM = 0.0;
 
-
-    public ShooterSubsystem(){
+    public ShooterSubsystem() {
         TalonFXConfiguration config = new TalonFXConfiguration();
 
         config.Slot0.kP = 0;
@@ -47,40 +44,38 @@ public class ShooterSubsystem extends SubsystemBase{
     }
 
     @Override
-    public void periodic(){
+    public void periodic() {
         shooter.setControl(
             velocityRequest.withVelocity(rpmToRps(targetRPM))
         );
 
-
-        double[] distanceZ = LimelightHelpers.getCameraPose_TargetSpace( "limelight");
+        double[] distanceZ = LimelightHelpers.getCameraPose_TargetSpace("limelight");
         SmartDashboard.putNumber("DistanceToTarget(M)", distanceZ[2]);
     }
 
-    public void setRPM(double rpm){
+    public void setRPM(double rpm) {
         targetRPM = rpm;
     }
 
-    public boolean atSetPoint(){
+    public boolean atSetPoint() {
         double error = Math.abs(
             shooter.getVelocity().getValueAsDouble()
-            -rpmToRps(targetRPM)
+                - rpmToRps(targetRPM)
         );
-        return error < 1.0; //RPS
+        return error < 1.0; // RPS
     }
 
-    private double rpmToRps(double rpm){
+    private double rpmToRps(double rpm) {
         return rpm / 60.0;
     }
 
+    public void setRPMFromDistance(double distance) {
 
-    public void setRPMFromDistance(double distance){
-
-        if(distance <= 0){
+        if (distance <= 0) {
             return;
         }
 
-        double heightDiff = 
+        double heightDiff =
             ShooterConstants.TARGET_HEIGHT - ShooterConstants.SHOOTER_EXIT_HEIGHT;
 
         double rpm = ShooterPhysics.calculateRPM(
@@ -88,7 +83,7 @@ public class ShooterSubsystem extends SubsystemBase{
             heightDiff,
             ShooterConstants.SHOOTER_ANGLE_RAD,
             ShooterConstants.WHEEL_RADIUS
-            );
+        );
 
         rpm = MathUtil.clamp(
             rpm,
@@ -97,5 +92,31 @@ public class ShooterSubsystem extends SubsystemBase{
         );
 
         setRPM(rpm);
+    }
+
+    /**
+     * Retorna a distância em metros da câmera até o alvo (eixo Z do TargetSpace) usando AprilTags
+     * Se não houver alvo ou o valor for inválido/negativo, retorna -1
+     * Aplica um clamp para evitar extrapolar para fora de uma faixa útil
+     */
+    public double getVisionDistanceMeters() {
+        if (!LimelightHelpers.getTV("limelight")) {
+            return -1;
+        }
+        double[] poseCamToTarget = LimelightHelpers.getCameraPose_TargetSpace("limelight");
+        if (poseCamToTarget == null || poseCamToTarget.length < 3) {
+            return -1;
+        }
+        double zMeters = poseCamToTarget[2];
+        if (Double.isNaN(zMeters) || zMeters <= 0) {
+            return -1;
+        }
+
+        // Coloquei limites fictícios porque não sei quais seriam os valores reais (ou eu que não achei)
+        double minDist = 0.5; // m
+        double maxDist = 8.0; // m
+        zMeters = MathUtil.clamp(zMeters, minDist, maxDist);
+
+        return zMeters;
     }
 }
