@@ -61,8 +61,6 @@ public class SwerveSubsystem extends SubsystemBase {
     LimelightHelpers.setCameraPose_RobotSpace("limelight", 0.355, 0, 0.18, 0.35, 0.5, 0);
     LimelightHelpers.setPipelineIndex("limelight", 6);
 
-    // LimelightHelpers.SetFieldLayout("limelight", "2026-rebuild");
-
     int[] validTagIDs = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 
                          17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32};
     LimelightHelpers.SetFiducialIDFiltersOverride("limelight", validTagIDs);
